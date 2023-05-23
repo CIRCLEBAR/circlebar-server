@@ -1,6 +1,52 @@
 # circlebar-server
 The CIRCLEBAR software that have to be launched into a RASPBERRY PI device.
 
+# Requirements
+
+- [Node.js](https://nodejs.org/en/)
+- [npm](https://www.npmjs.com/)
+- [MySQL](https://www.mysql.com/fr/)
+
+# Installation
+
+## MySQL
+
+You have to import the `db.sql` file into mysql.
+
+```bash
+mysql -u root -p < db.sql
+```
+
+## .env
+
+You have to create a `.env` file at the root of the project with the following content :
+
+```dotenv
+MYSQL_PASSWORD=yourpassword
+MYSQL_USER=root
+MYSQL_HOST=localhost
+MYSQL_DATABASE=circlebar
+SECRET=yourSecret
+```
+
+## admin.json
+
+You have to create a `admin.json` file at the root of the project with the following content :
+
+```json
+{
+    "username": "admin",
+    "password": "admin"
+}
+```
+
+By default, you will be able to login with the following credentials :
+
+- username : admin
+- password : admin
+
+You must change it after the first login in the admin panel.
+
 # START SERVER
 
 To start the CIRCLEBAR software server, you may have to use theses commands :
