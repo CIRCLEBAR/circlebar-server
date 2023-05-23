@@ -28,7 +28,14 @@ function getAvailableCocktails(req, res) {
                     }
                 });
                 if (isAvailable) {
-                    availableCocktails.push(cocktail);
+                    let simplifiedCocktail = {
+                        id: cocktail.id,
+                        name: cocktail.name,
+                        description: cocktail.description,
+                        image: cocktail.image,
+                        collections: cocktail.collections
+                    };
+                    availableCocktails.push(simplifiedCocktail);
                 }
             });
             return res.json(availableCocktails);

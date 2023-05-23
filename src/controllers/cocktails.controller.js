@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const fs = require("fs");
 
 function getCocktails(req, res) {
     db.query("SELECT * FROM cocktails", (err, results) => {
@@ -15,31 +16,37 @@ function getCocktails(req, res) {
 
 function newCocktail(req, res) {
     var { image } = req.files;
-    var { data } = req.body;
+    var { name, description, collections, recipe } = req.body;
 
-    if (!image || !data) {
+    if (!image || !description || !collections || !recipe) {
         return res
         .status(400)
-        .json({ msg: "Please enter image and data" });
+        .json({ msg: "Please enter all fields" });
+    }
+
+    console.log("POST /COCKTAILS");
+
+    try {
+        JSON.parse(recipe);
+    } catch (err) {
+        return res.status(400).json({ msg: "Please enter a valid recipe" });
+    }
+
+    if (!image.mimetype.startsWith("image")) {
+        return res.status(400).json({ msg: "Please upload an image file" });
     }
 
     var imagePath = '/cocktails/' + image.name;
     image.mv('./public' + imagePath, (err) => {
         if (err) {
             console.error(err);
+            return res.status(500).json({ msg: "Error uploading image" });
         } else {
             console.log("Image uploaded");
 
-            var jsonData = JSON.parse(data);
-            var { name, recipe } = jsonData;
-            if (!name || !recipe) {
-                return res
-                .status(400)
-                .json({ msg: "Please enter a name and recipe" });
-            }
             db.query(
-                "INSERT INTO cocktails (name, image, recipe) VALUES (?, ?, ?)",
-                [name, imagePath, JSON.stringify(recipe)],
+                "INSERT INTO cocktails (name, image, description, collections, recipe) VALUES (?, ?, ?, ?, ?)",
+                [name, imagePath, description, collections, JSON.stringify(recipe)],
                 (err) => {
                     if (err) {
                         res.status(500).json({ msg: "Error adding cocktail" });
@@ -53,26 +60,80 @@ function newCocktail(req, res) {
 }
 
 function editCocktail(req, res) {
-    var { name, icon, recipe } = req.body;
+    var { image } = req.files;
+    var { name, description, collections, recipe } = req.body;
 
     console.log("PUT /COCKTAILS");
 
-    if (!name || !icon || !recipe) {
+    if (!name || !description || !collections || !recipe) {
         return res
             .status(400)
-            .json({ msg: "Please enter a name, icon and recipe" });
+            .json({ msg: "Please enter all fields" });
     }
-    db.query(
-        "UPDATE cocktails SET name = ?, icon = ?, recipe = ? WHERE id = ?",
-        [name, icon, JSON.stringify(recipe), req.params.id],
-        (err, results) => {
-            if (err) {
-                res.status(500).json({ msg: "Error editing cocktail" });
-            } else {
-                res.json({ msg: "Cocktail edited" });
-            }
+
+    try {
+        JSON.parse(recipe);
+    } catch (err) {
+        return res.status(400).json({ msg: "Please enter a valid recipe" });
+    }
+
+    if (image) {
+        if (!image.mimetype.startsWith("image")) {
+            return res.status(400).json({ msg: "Please upload an image file" });
         }
-    );
+
+        var imagePath = '/cocktails/' + image.name;
+        image.mv('./public' + imagePath, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ msg: "Error uploading image" });
+            } else {
+                console.log("Image uploaded");
+
+                // Get old image path
+                db.query("SELECT image FROM cocktails WHERE id = ?", [req.params.id], (err, results) => {
+                    if (err) {
+                        res.status(500).json({ msg: "Error editing cocktail" });
+                    } else {
+                        var oldImagePath = results[0].image;
+
+                        // Update cocktail
+                        db.query("UPDATE cocktails SET name = ?, image = ?, description = ?, collections = ?, recipe = ? WHERE id = ?",
+                            [name, imagePath, description, collections, JSON.stringify(recipe), req.params.id], (err, results) => {
+                                if (err) {
+                                    res.status(500).json({ msg: "Error editing cocktail" });
+                                } else {
+
+                                    // delete old image
+                                    fs.unlink('./public' + oldImagePath, (err) => {
+                                        if (err) {
+                                            console.error(err);
+                                            return res.status(500).json({ msg: "Error deleting old image" });
+                                        } else {
+                                            console.log("Old image deleted");
+                                        }
+                                    });
+
+                                }
+                            }
+                        );
+                    }
+                });
+            }
+        });
+    } else {
+        db.query(
+            "UPDATE cocktails SET name = ?, recipe = ?, collections = ?, description = ? WHERE id = ?",
+            [name, JSON.stringify(recipe), collections, description, req.params.id],
+            (err, results) => {
+                if (err) {
+                    res.status(500).json({ msg: "Error editing cocktail" });
+                } else {
+                    res.json({ msg: "Cocktail edited successfully" });
+                }
+            }
+        );
+    }
 }
 
 function deleteCocktail(req, res) {
@@ -81,9 +142,13 @@ function deleteCocktail(req, res) {
         [req.params.id],
         (err, results) => {
             if (err) {
-                res.status(500).json({ msg: "Error deleting cocktail" });
+                if (err.code === "ER_ROW_IS_REFERENCED_2") {
+                    res.status(404).json({ msg: "Cocktail not found" });
+                } else {
+                    res.status(500).json({ msg: "Error deleting cocktail" });
+                }
             } else {
-                res.json({ msg: "Cocktail deleted" });
+                res.json({ msg: "Cocktail deleted successfully" });
             }
         }
     );

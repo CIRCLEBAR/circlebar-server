@@ -16,6 +16,7 @@ CREATE TABLE `cocktails` (
   `name` tinytext NOT NULL,
   `image` tinytext NOT NULL,
   `collections` tinytext NOT NULL,
+  `description` longtext NOT NULL,
   `recipe` json NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)

@@ -138,6 +138,13 @@ PROTECTED ROUTE : You have to be logged in to access this route. [See protected 
         "image": "cocktailImagePath",
         "description": "cocktailDescription",
         "collections": "cocktailCollections",
+        "recipe": [
+            {
+                "drink_id": "ingredientId",
+                "qty": "ingredientQuantity"
+            },
+            ...
+        ]
     },
     ...
 ]
@@ -205,7 +212,7 @@ recipe JSON example :
 **Body** :
 ```json
 {
-    "msg": "Please enter an image"
+    "msg": "Please uplaod an image file"
 }
 ```
 
