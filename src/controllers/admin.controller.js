@@ -16,7 +16,9 @@ function editAdmin(req, res) {
 }
 
 function getAdmin(req, res) {
-    res.json(JSON.parse(fs.readFileSync("admin.json")));
+    let admin = JSON.parse(fs.readFileSync("admin.json"));
+    let simplifiedAdmin = { username: admin.username };
+    res.json(simplifiedAdmin);
 }
 
 module.exports = {

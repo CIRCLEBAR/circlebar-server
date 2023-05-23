@@ -8,6 +8,7 @@ function getCocktails(req, res) {
         } else {
             results.forEach((cocktail) => {
                 cocktail.recipe = JSON.parse(cocktail.recipe);
+                cocktail.collections = JSON.parse(cocktail.collections);
             });
             res.json(results);
         }
@@ -15,6 +16,9 @@ function getCocktails(req, res) {
 }
 
 function newCocktail(req, res) {
+    if (req.files === null) {
+        return res.status(400).json({ msg: "Please upload an image file" });
+    }
     var { image } = req.files;
     var { name, description, collections, recipe } = req.body;
 
@@ -60,7 +64,6 @@ function newCocktail(req, res) {
 }
 
 function editCocktail(req, res) {
-    var { image } = req.files;
     var { name, description, collections, recipe } = req.body;
 
     console.log("PUT /COCKTAILS");
@@ -77,7 +80,21 @@ function editCocktail(req, res) {
         return res.status(400).json({ msg: "Please enter a valid recipe" });
     }
 
-    if (image) {
+    if (req.files === null || req.files.image === null) {
+        db.query(
+            "UPDATE cocktails SET name = ?, recipe = ?, collections = ?, description = ? WHERE id = ?",
+            [name, JSON.stringify(recipe), collections, description, req.params.id],
+            (err, results) => {
+                if (err) {
+                    res.status(500).json({ msg: "Error editing cocktail" });
+                } else {
+                    res.json({ msg: "Cocktail edited successfully" });
+                }
+            }
+        );
+    } else {
+        var { image } = req.files;
+
         if (!image.mimetype.startsWith("image")) {
             return res.status(400).json({ msg: "Please upload an image file" });
         }
@@ -103,7 +120,9 @@ function editCocktail(req, res) {
                                 if (err) {
                                     res.status(500).json({ msg: "Error editing cocktail" });
                                 } else {
-
+                                    if (oldImagePath === imagePath) {
+                                        return res.json({ msg: "Cocktail edited successfully" });
+                                    }
                                     // delete old image
                                     fs.unlink('./public' + oldImagePath, (err) => {
                                         if (err) {
@@ -111,6 +130,7 @@ function editCocktail(req, res) {
                                             return res.status(500).json({ msg: "Error deleting old image" });
                                         } else {
                                             console.log("Old image deleted");
+                                            return res.json({ msg: "Cocktail edited successfully" });
                                         }
                                     });
 
@@ -121,18 +141,6 @@ function editCocktail(req, res) {
                 });
             }
         });
-    } else {
-        db.query(
-            "UPDATE cocktails SET name = ?, recipe = ?, collections = ?, description = ? WHERE id = ?",
-            [name, JSON.stringify(recipe), collections, description, req.params.id],
-            (err, results) => {
-                if (err) {
-                    res.status(500).json({ msg: "Error editing cocktail" });
-                } else {
-                    res.json({ msg: "Cocktail edited successfully" });
-                }
-            }
-        );
     }
 }
 
