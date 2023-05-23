@@ -10,6 +10,16 @@ npm install
 npm start
 ```
 
+# Dev mode
+
+To start the CIRCLEBAR software server in dev mode, you may have to use theses commands :
+
+```bash
+npm install -g nodemon
+npm install
+npm run dev
+```
+
 # API Documentation
 
 ## Availables routes table
