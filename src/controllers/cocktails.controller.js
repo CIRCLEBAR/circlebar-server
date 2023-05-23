@@ -14,24 +14,42 @@ function getCocktails(req, res) {
 }
 
 function newCocktail(req, res) {
-    var { name, icon, recipe } = req.body;
+    var { image } = req.files;
+    var { data } = req.body;
 
-    if (!name || !icon || !recipe) {
+    if (!image || !data) {
         return res
-            .status(400)
-            .json({ msg: "Please enter a name, icon and recipe" });
+        .status(400)
+        .json({ msg: "Please enter image and data" });
     }
-    db.query(
-        "INSERT INTO cocktails (name, icon, recipe) VALUES (?, ?, ?)",
-        [name, icon, JSON.stringify(recipe)],
-        (err) => {
-            if (err) {
-                res.status(500).json({ msg: "Error adding cocktail" });
-            } else {
-                res.json({ msg: "Cocktail added" });
+
+    var imagePath = '/cocktails/' + image.name;
+    image.mv('./public' + imagePath, (err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Image uploaded");
+
+            var jsonData = JSON.parse(data);
+            var { name, recipe } = jsonData;
+            if (!name || !recipe) {
+                return res
+                .status(400)
+                .json({ msg: "Please enter a name and recipe" });
             }
+            db.query(
+                "INSERT INTO cocktails (name, image, recipe) VALUES (?, ?, ?)",
+                [name, imagePath, JSON.stringify(recipe)],
+                (err) => {
+                    if (err) {
+                        res.status(500).json({ msg: "Error adding cocktail" });
+                    } else {
+                        res.json({ msg: "Cocktail added successfully" });
+                    }
+                }
+            );
         }
-    );
+    });
 }
 
 function editCocktail(req, res) {

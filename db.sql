@@ -14,7 +14,8 @@ DROP TABLE IF EXISTS `cocktails`;
 CREATE TABLE `cocktails` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` tinytext NOT NULL,
-  `icon` int unsigned NOT NULL DEFAULT '0',
+  `image` tinytext NOT NULL,
+  `collections` tinytext NOT NULL,
   `recipe` json NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)

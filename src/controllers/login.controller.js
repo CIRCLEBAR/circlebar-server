@@ -32,7 +32,7 @@ function login(req, res) {
 
         if (!verified) {
             return res
-                .status(400)
+                .status(401)
                 .json({ msg: "Invalid username or password" });
         } else {
             const token = jwt.sign(

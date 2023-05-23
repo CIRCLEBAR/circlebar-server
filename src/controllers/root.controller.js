@@ -15,7 +15,6 @@ function getAvailableCocktails(req, res) {
             }
             cocktails.forEach((cocktail) => {
                 let isAvailable = true;
-                cocktail.recipe = JSON.parse(cocktail.recipe);
                 cocktail.recipe.forEach((drink) => {
                     let isInStock = false;
 

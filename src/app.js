@@ -1,5 +1,6 @@
 const express = require("express"); //requires express module
 const socket = require("socket.io"); //requires socket.io module
+const fileUpload = require('express-fileupload');
 const app = express();
 var PORT = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
@@ -18,17 +19,19 @@ const router = require("./routes");
 const Queue = require("./utils/Queue");
 const { startNewCommand, cancelCommand } = require("./middleware/commands");
 
+// Used to help applications to auto-discover this server
 const ad = mdns.createAdvertisement(mdns.tcp('http'), 3000, {
     name: 'circlebar'
-  });
+});
 
-  // Start the advertisement
-  ad.start();
+// Start the advertisement
+ad.start();
 
 initSlots();
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
+app.use(fileUpload());
 
 app.use("/", router);
 
@@ -48,7 +51,6 @@ io.sockets.on("connection", (socket) => {
                 cancelCommand(index, io);
             }
         });
-        // TODO: remove user commands from queue
     });
 });
 
