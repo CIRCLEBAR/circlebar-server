@@ -1,6 +1,8 @@
 const db = require("../config/db");
 
 function getSlots(req, res) {
+
+    console.log("GET slots")
     db.query("SELECT * FROM slots", (err, result) => {
         if (err) {
             return res.status(500).json({ msg: "Error getting slots" });
