@@ -28,7 +28,8 @@
         "jsonwebtoken": "^9.0.0",
         "mdns": "^2.7.2",
         "mysql2": "^2.3.3",
-        "socket.io": "^4.5.1"
+        "socket.io": "^4.5.1",
+        "uuid": "^9.0.0"
     },
     "devDependencies": {
         "nodemon": "^2.0.22"

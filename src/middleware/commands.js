@@ -1,8 +1,12 @@
 const Queue = require("../utils/Queue");
+const Users = require("../utils/Users");
 
-function startNewCommand(socket) {
+function startNewCommand(uuid, io) {
     Queue.isWorking = true;
     Queue.waitingCup = true;
+    console.log("Launching preparation...");
+    let socketID = Users.getSocketId(uuid);
+    let socket = io.sockets.sockets.get(socketID);
     socket.emit("ready");
     Queue.waitRemovingCup = false;
 }
@@ -10,7 +14,7 @@ function startNewCommand(socket) {
 function cancelCommand(index, io) {
     Queue.queue.splice(index, 1);
     if (index == 0 && Queue.size() > 0) {
-        startNewCommand(io.sockets.to(Queue.queue[0].socket_id));
+        startNewCommand(Queue.queue[0].uuid, io);
     }
 }
 

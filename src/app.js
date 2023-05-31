@@ -5,9 +5,13 @@ const app = express();
 var PORT = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const mdns = require('mdns');
+const {
+    v4: uuidv4,
+  } = require('uuid');
+
 
 const { initSlots } = require("./middleware/init");
-const commandHandler = require("./handlers/command.handler");
+const { commandHandler } = require("./handlers/command.handler");
 const launchPreparation = require("./bartender/launchPreparation");
 const cupRemoved = require("./handlers/cupRemoved.handler");
 
@@ -17,6 +21,7 @@ const io = socket(server);
 
 const router = require("./routes");
 const Queue = require("./utils/Queue");
+const Users = require("./utils/Users");
 const { startNewCommand, cancelCommand } = require("./middleware/commands");
 
 // Used to help applications to auto-discover this server
@@ -40,9 +45,32 @@ console.log("Server is running");
 io.sockets.on("connection", (socket) => {
     console.log("New socket connection: " + socket.id);
 
-    socket.on("command", commandHandler);
+    socket.on("addr", (data) => {
+        console.log("addr: " + data);
+        if (data == null) {
+            console.log("Address empty")
+            let newUuid = uuidv4();
+
+            Users.add({ uuid: newUuid, socket_id: socket.id })
+            Users.print()
+            socket.emit("setAddr", newUuid);
+        } else {
+            console.log("Address not empty")
+            let user = Users.getByUuid(data);
+
+            console.log(data);
+            if (user != null) {
+                user.socket_id = socket.id;
+                console.log("Expected: " + socket.id, "Got: " + Users.getSocketId(data))
+            } else {
+                Users.add({ uuid: data, socket_id: socket.id });
+            }
+        }
+    });
+
+    commandHandler(socket, io);
     socket.on("ready", launchPreparation);
-    socket.on("removed", cupRemoved);
+    socket.on("cancel", cancelCommand);
 
     socket.on("disconnect", () => {
         console.log("User disconnected: " + socket.id);
@@ -52,6 +80,8 @@ io.sockets.on("connection", (socket) => {
             }
         });
     });
+
+    socket.emit("addr");
 });
 
 // socket.broadcast.to(socketid).emit("command"); to send to an individual client
