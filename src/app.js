@@ -78,17 +78,25 @@ io.sockets.on("connection", (socket) => {
                 cancelCommand(index, io);
             }
         });
-        cancelCommand()
     });
+
+    socket.on("glass", () => {
+        socket.emit("glass", true);
+    })
 
     socket.on("disconnect", () => {
         console.log("User disconnected: " + socket.id);
-        let uuid = Users.getUuid(socket.id);
-        Queue.queue.forEach((item, index) => {
-            if (item.uuid == uuid) {
-                cancelCommand(index, io);
-            }
-        });
+        let user = Users.getBySocketId(socket.id);
+
+        if (user) {
+            let uuid = user.uuid;
+
+            Queue.queue.forEach((item, index) => {
+                if (item.uuid == uuid) {
+                    cancelCommand(index, io);
+                }
+            });
+        }
     });
 
     socket.emit("addr");
