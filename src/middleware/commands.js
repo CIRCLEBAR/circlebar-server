@@ -13,6 +13,12 @@ function startNewCommand(uuid, io) {
 
 function cancelCommand(index, io) {
     Queue.queue.splice(index, 1);
+    console.log("Command " + index + " cancelled.");
+    if (index == 0) {
+        Queue.isWorking = false;
+        Queue.waitingCup = false;
+        Queue.waitRemovingCup = true;
+    }
     if (index == 0 && Queue.size() > 0) {
         startNewCommand(Queue.queue[0].uuid, io);
     }

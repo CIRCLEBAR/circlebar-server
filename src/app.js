@@ -70,12 +70,22 @@ io.sockets.on("connection", (socket) => {
 
     commandHandler(socket, io);
     socket.on("ready", launchPreparation);
-    socket.on("cancel", cancelCommand);
+    socket.on("cancel", () => {
+        let uuid = Users.getUuid(socket.id);
+
+        Queue.queue.forEach((item, index) => {
+            if (item.uuid == uuid) {
+                cancelCommand(index, io);
+            }
+        });
+        cancelCommand()
+    });
 
     socket.on("disconnect", () => {
         console.log("User disconnected: " + socket.id);
+        let uuid = Users.getUuid(socket.id);
         Queue.queue.forEach((item, index) => {
-            if (item.socket_id == socket.id) {
+            if (item.uuid == uuid) {
                 cancelCommand(index, io);
             }
         });

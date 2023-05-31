@@ -67,6 +67,7 @@ function commandHandler(socket, io)
                     return;
                 }
                 console.log(`Cocktail ${msg} added to queue`);
+                Queue.print();
                 Queue.enqueue({
                     uuid: uuid,
                     command_id: nCommand++,
