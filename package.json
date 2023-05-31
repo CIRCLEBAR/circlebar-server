@@ -27,7 +27,7 @@
         "fs": "0.0.1-security",
         "jsonwebtoken": "^9.0.0",
         "mdns": "^2.7.2",
-        "mysql2": "^2.3.3",
+        "mysql2": "^3.3.3",
         "onoff": "^6.0.3",
         "socket.io": "^4.5.1",
         "uuid": "^9.0.0"
