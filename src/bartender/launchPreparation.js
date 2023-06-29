@@ -13,7 +13,7 @@ const prepareCocktail = (index, recipe) => {
                     if (err) {
                         return;
                     }
-                    console.log(slots[0]);
+                    console.log("Slot: " + slots[0]);
                     Pumps[slots[0].id - 1].writeSync(1);
                     setTimeout(() => {
                         Pumps[slots[0].id - 1].writeSync(0);
@@ -42,7 +42,8 @@ function launchPreparation() {
                 return;
             }
             var cocktail = cocktails[0];
-            var recipe = JSON.parse(cocktail.recipe);
+            var recipe = JSON.parse(JSON.parse(cocktail.recipe));
+            console.log(recipe)
             prepareCocktail(0, recipe).then(() => {
                 console.log("Preparation finished");
                 socket.emit("get-cup");
