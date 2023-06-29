@@ -40,6 +40,19 @@ app.use(fileUpload());
 
 app.use("/", router);
 
+let glassInput = new Gpio(18, 'in', 'both')
+let glassValue = false;
+
+glassInput.watch(function (err, value) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+    console.log("Glass: " + value);
+    glassValue = value;
+    io.sockets.emit("glass", value);
+});
+
 console.log("Server is running");
 
 io.sockets.on("connection", (socket) => {
@@ -81,7 +94,8 @@ io.sockets.on("connection", (socket) => {
     });
 
     socket.on("glass", () => {
-        socket.emit("glass", true);
+        value = !value;
+        socket.emit("glass", value);
     })
 
     socket.on("disconnect", () => {

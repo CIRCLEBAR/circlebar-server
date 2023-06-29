@@ -3,6 +3,8 @@ out
 
 package-lock.json
 
+*.zip
+
 # Logs
 logs
 *.log
