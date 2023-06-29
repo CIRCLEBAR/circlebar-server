@@ -4,6 +4,7 @@ out
 package-lock.json
 
 *.zip
+.DS_Store
 
 # Logs
 logs
