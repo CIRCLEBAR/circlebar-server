@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mariadb:
-    image: mariadb:latest
+    image: armbuilds/mariadb:latest
     container_name: circlebar_mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=yourpassword
