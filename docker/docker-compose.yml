@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: circlebar_mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=yourpassword
+      - MYSQL_DATABASE=circlebar_db
+    networks:
+      - circlebar-network
+    volumes:
+      - ./mariadb_docker/database:/var/lib/mysql
+    # command: mariadb -u root -pyourpassword -e "CREATE DATABASE circlebar;"; mariadb -u root -pyourpassword circlebar < /circlebar/db.sql
+
+  # circlebar_server:
+  #   image: circlebar_server:latest
+  #   container_name: circlebar_server
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - circlebar-network
+  #   depends_on:
+  #     - mariadb
+
+networks:
+  circlebar-network:
+    driver: bridge

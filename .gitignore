@@ -114,3 +114,8 @@ dist
 public/*/*.jpeg
 public/*/*.jpg
 public/*/*.png
+
+
+# Docker useless files
+docker/circlebar
+docker/mariadb_docker/*
