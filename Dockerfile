@@ -19,7 +19,8 @@ RUN rm -rf /circlebar/docker
 
 COPY ./docker/.envtest /circlebar/.env
 COPY ./docker/admin.jsontest /circlebar/admin.json
-VOLUME [ "/sys/class/gpio/export", "/sys/class/gpio/export" ]
+RUN mkdir /sys/class/gpio/
+VOLUME [ "/sys/class/gpio/", "/sys/class/gpio/" ]
 
 RUN cd circlebar && npm install
 RUN cd circlebar && npm fund
