@@ -2,6 +2,7 @@ const Queue = require("../utils/Queue");
 const db = require("../config/db");
 const Pumps = require("./initGpio");
 const Users = require("../utils/Users");
+const { cancelCommand } = require("../middleware/commands");
 
 const prepareCocktail = (index, recipe) => {
     return new Promise((resolve) => {
@@ -25,9 +26,9 @@ const prepareCocktail = (index, recipe) => {
     });
 };
 
-function launchPreparation() {
-    var socket = this;
-
+function launchPreparation(socket, io) {
+    console.log("socketID: " + socket.id)
+    console.log("UUID: " + Users.getUuid(socket.id));
     if (Queue.queue[0].uuid != Users.getUuid(socket.id) || !Queue.waitingCup) {
         socket.emit("unauthorized");
         return;
@@ -46,7 +47,7 @@ function launchPreparation() {
             console.log(recipe)
             prepareCocktail(0, recipe).then(() => {
                 console.log("Preparation finished");
-                socket.emit("get-cup");
+                socket.emit("finished");
                 Queue.waitRemovingCup = true;
             });
             console.log(cocktail);

@@ -23,6 +23,7 @@ function commandHandler(socket, io)
         //     return;
         // }
         if (isAlreadyCommand) {
+            console.log(isAlreadyCommand)
             socket.emit("unauthorized");
             return;
         }

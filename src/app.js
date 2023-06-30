@@ -5,6 +5,7 @@ const app = express();
 var PORT = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const mdns = require('mdns');
+const Gpio = require('onoff').Gpio;
 const {
     v4: uuidv4,
   } = require('uuid');
@@ -41,7 +42,7 @@ app.use(fileUpload());
 app.use("/", router);
 
 let glassInput = new Gpio(18, 'in', 'both')
-let glassValue = false;
+let glassValue = glassInput.readSync();
 
 glassInput.watch(function (err, value) {
     if (err) {
@@ -51,6 +52,10 @@ glassInput.watch(function (err, value) {
     console.log("Glass: " + value);
     glassValue = value;
     io.sockets.emit("glass", value);
+    
+    console.log(value, Queue.isWorking, Queue.waitRemovingCup)
+    if (value == 0 && Queue.isWorking && Queue.waitRemovingCup)
+        cancelCommand(0, io);
 });
 
 console.log("Server is running");
@@ -70,11 +75,14 @@ io.sockets.on("connection", (socket) => {
         } else {
             console.log("Address not empty")
             let user = Users.getByUuid(data);
+            console.log(user)
 
             console.log(data);
             if (user != null) {
-                user.socket_id = socket.id;
-                console.log("Expected: " + socket.id, "Got: " + Users.getSocketId(data))
+                //Users.remove(user);
+                //user.socket_id = socket.id;
+                //Users.add(user);
+                //console.log("Expected: " + socket.id, "Got: " + Users.getSocketId(data))
             } else {
                 Users.add({ uuid: data, socket_id: socket.id });
             }
@@ -82,7 +90,7 @@ io.sockets.on("connection", (socket) => {
     });
 
     commandHandler(socket, io);
-    socket.on("ready", launchPreparation);
+    socket.on("ready", () => { launchPreparation(socket, io) });
     socket.on("cancel", () => {
         let uuid = Users.getUuid(socket.id);
 
@@ -94,8 +102,7 @@ io.sockets.on("connection", (socket) => {
     });
 
     socket.on("glass", () => {
-        value = !value;
-        socket.emit("glass", value);
+        socket.emit("glass", glassValue);
     })
 
     socket.on("disconnect", () => {

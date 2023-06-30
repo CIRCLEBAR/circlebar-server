@@ -6,6 +6,7 @@ function startNewCommand(uuid, io) {
     Queue.waitingCup = true;
     console.log("Launching preparation...");
     let socketID = Users.getSocketId(uuid);
+    console.log(socketID)
     let socket = io.sockets.sockets.get(socketID);
     socket.emit("ready");
     Queue.waitRemovingCup = false;
