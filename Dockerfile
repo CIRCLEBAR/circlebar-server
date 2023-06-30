@@ -22,5 +22,6 @@ COPY ./docker/admin.jsontest /circlebar/admin.json
 
 RUN cd circlebar && npm install
 RUN cd circlebar && npm fund
+RUN cd circlebar && npm audit fix
 
-ENTRYPOINT [ "cd circlebar && npm start" ]
+CMD [ "cd", "circlebar", "&&", "npm", "start" ]
