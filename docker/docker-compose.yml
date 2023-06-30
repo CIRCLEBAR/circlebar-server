@@ -14,7 +14,7 @@ services:
     # command: mariadb -u root -pyourpassword -e "CREATE DATABASE circlebar;"; mariadb -u root -pyourpassword circlebar < /circlebar/db.sql
 
   circlebar_server:
-    image: circlebar_server:latest
+    image: someone2love/circlebar_server:latest
     container_name: circlebar_server
     ports:
       - "8080:8080"

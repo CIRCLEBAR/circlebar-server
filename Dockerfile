@@ -24,4 +24,4 @@ RUN cd circlebar && npm install
 RUN cd circlebar && npm fund
 RUN cd circlebar && npm audit fix
 
-CMD [ "cd", "circlebar", "&&", "npm", "start" ]
+CMD [ "npm" "start" "--prefix" "/circlebar" ]
