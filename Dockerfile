@@ -10,13 +10,14 @@ RUN sed -i 's/.*enable-dbus=.*/enable-dbus=no/' /etc/avahi/avahi-daemon.conf
 
 RUN avahi-daemon -D
 
-# RUN git pull https://github.com/CIRCLEBAR/circlebar-server
-COPY circlebar /circlebar
+#copy everything from the parent directory exept docker folder into the container
 
-# RUN mysql -u root -p < circlebar/db.sql
-# COPY [.env location] /circlebar/.env
-# COPY [admin.json location] /circlebar/admin.json
-# RIGHT NOW IS PRESET IN THE DOWNLOADED REPO, TO PULL FROM GITHUB EVENTUALLY
+RUN mkdir /circlebar
+COPY ./ /circlebar
+RUN rm -rf /circlebar/docker
+
+COPY ./docker/.env /circlebar/.env
+COPY ./docker/admin.json /circlebar/admin.json
 
 RUN cd circlebar && npm install
 RUN cd circlebar && npm fund
